@@ -36,6 +36,7 @@ SpaceShift is a lightweight native menu bar utility for macOS. It accelerates ho
 
 ## Requirements
 
+- Apple silicon Mac (`arm64`)
 - macOS 14 Sonoma or newer
 - Accessibility permission for intercepting Space-switching input
 - A trackpad is required for synthetic native swipe playback

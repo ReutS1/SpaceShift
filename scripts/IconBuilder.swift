@@ -1,7 +1,19 @@
 import AppKit
 import Foundation
 
-let outputURL = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
+guard CommandLine.arguments.count >= 3 else {
+    fputs("Usage: swift IconBuilder.swift <master.png> <iconset-dir> [output.icns]\n", stderr)
+    exit(2)
+}
+
+let masterURL = URL(fileURLWithPath: CommandLine.arguments[1])
+let outputURL = URL(fileURLWithPath: CommandLine.arguments[2], isDirectory: true)
+
+guard let source = NSImage(contentsOf: masterURL) else {
+    fputs("Could not load master icon: \(masterURL.path)\n", stderr)
+    exit(1)
+}
+
 try FileManager.default.createDirectory(at: outputURL, withIntermediateDirectories: true)
 
 let variants: [(name: String, points: Int, scale: Int)] = [
@@ -30,54 +42,31 @@ for variant in variants {
         colorSpaceName: .deviceRGB,
         bytesPerRow: 0,
         bitsPerPixel: 0
-    ), let context = NSGraphicsContext(bitmapImageRep: bitmap)?.cgContext else { continue }
+    ) else { continue }
 
-    let s = CGFloat(pixels)
-    context.setAllowsAntialiasing(true)
-    context.setShouldAntialias(true)
-
-    let tile = CGRect(x: s * 0.06, y: s * 0.06, width: s * 0.88, height: s * 0.88)
-    let tilePath = CGPath(roundedRect: tile, cornerWidth: s * 0.22, cornerHeight: s * 0.22, transform: nil)
-    context.saveGState()
-    context.addPath(tilePath)
-    context.clip()
-    let colors = [
-        NSColor(calibratedRed: 0.39, green: 0.31, blue: 1.0, alpha: 1).cgColor,
-        NSColor(calibratedRed: 0.08, green: 0.55, blue: 1.0, alpha: 1).cgColor
-    ] as CFArray
-    let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors, locations: [0, 1])!
-    context.drawLinearGradient(gradient, start: CGPoint(x: s * 0.18, y: s * 0.9), end: CGPoint(x: s * 0.86, y: s * 0.12), options: [])
-    context.restoreGState()
-
-    context.setShadow(offset: CGSize(width: 0, height: -s * 0.018), blur: s * 0.045, color: NSColor.black.withAlphaComponent(0.22).cgColor)
-    context.setStrokeColor(NSColor.white.withAlphaComponent(0.96).cgColor)
-    context.setLineWidth(s * 0.065)
-    context.setLineCap(.round)
-    context.setLineJoin(.round)
-
-    let left = CGRect(x: s * 0.20, y: s * 0.29, width: s * 0.37, height: s * 0.43)
-    let right = CGRect(x: s * 0.43, y: s * 0.29, width: s * 0.37, height: s * 0.43)
-    context.addPath(CGPath(roundedRect: left, cornerWidth: s * 0.055, cornerHeight: s * 0.055, transform: nil))
-    context.strokePath()
-    context.addPath(CGPath(roundedRect: right, cornerWidth: s * 0.055, cornerHeight: s * 0.055, transform: nil))
-    context.strokePath()
-
-    context.setShadow(offset: .zero, blur: 0)
-    context.setStrokeColor(NSColor.white.cgColor)
-    context.setLineWidth(s * 0.07)
-    context.move(to: CGPoint(x: s * 0.43, y: s * 0.50))
-    context.addLine(to: CGPoint(x: s * 0.59, y: s * 0.50))
-    context.move(to: CGPoint(x: s * 0.54, y: s * 0.56))
-    context.addLine(to: CGPoint(x: s * 0.60, y: s * 0.50))
-    context.addLine(to: CGPoint(x: s * 0.54, y: s * 0.44))
-    context.strokePath()
+    bitmap.size = NSSize(width: pixels, height: pixels)
+    NSGraphicsContext.saveGraphicsState()
+    guard let graphicsContext = NSGraphicsContext(bitmapImageRep: bitmap) else {
+        NSGraphicsContext.restoreGraphicsState()
+        continue
+    }
+    NSGraphicsContext.current = graphicsContext
+    graphicsContext.imageInterpolation = .high
+    source.draw(
+        in: NSRect(x: 0, y: 0, width: pixels, height: pixels),
+        from: NSRect(origin: .zero, size: source.size),
+        operation: .copy,
+        fraction: 1
+    )
+    graphicsContext.flushGraphics()
+    NSGraphicsContext.restoreGraphicsState()
 
     if let png = bitmap.representation(using: .png, properties: [:]) {
         try png.write(to: outputURL.appendingPathComponent(variant.name))
     }
 }
 
-if CommandLine.arguments.count > 2 {
+if CommandLine.arguments.count > 3 {
     let chunks: [(String, String)] = [
         ("icp4", "icon_16x16.png"),
         ("icp5", "icon_32x32.png"),
@@ -104,5 +93,5 @@ if CommandLine.arguments.count > 2 {
     var icon = Data("icns".utf8)
     icon.append(bigEndianData(UInt32(body.count + 8)))
     icon.append(body)
-    try icon.write(to: URL(fileURLWithPath: CommandLine.arguments[2]))
+    try icon.write(to: URL(fileURLWithPath: CommandLine.arguments[3]))
 }

@@ -10,6 +10,7 @@ volume_name="SpaceShift Installer 2.4"
 work_dir="$(mktemp -d /private/tmp/spaceshift-dmg.XXXXXX)"
 rw_path="$work_dir/SpaceShift-template-rw.dmg"
 mounted_device=""
+mount_dir=""
 
 cleanup() {
     if [[ -n "$mounted_device" ]]; then
@@ -36,10 +37,10 @@ done
 # replacing files in place preserves Finder's background and icon layout.
 hdiutil convert "$template_path" -format UDRW -o "$rw_path" >/dev/null
 attach_output="$(hdiutil attach -readwrite -nobrowse "$rw_path")"
-mounted_device="$(print -r -- "$attach_output" | awk '/^\/dev\// { print $1; exit }')"
-mount_dir="/Volumes/$volume_name"
+mounted_device="$(print -r -- "$attach_output" | awk '/Apple_HFS/ { print $1; exit }')"
+mount_dir="$(print -r -- "$attach_output" | awk '/Apple_HFS/ { $1=""; $2=""; sub(/^[[:space:]]+/, ""); print; exit }')"
 if [[ -z "$mounted_device" || ! -d "$mount_dir" ]]; then
-    echo "Could not mount DMG template at $mount_dir" >&2
+    echo "Could not determine the mounted DMG template path" >&2
     exit 1
 fi
 

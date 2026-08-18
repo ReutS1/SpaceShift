@@ -14,6 +14,8 @@
     <string>SpaceShift</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2026 ReutS1. All rights reserved.</string>
     <key>CFBundleName</key>
     <string>SpaceShift</string>
     <key>CFBundlePackageType</key>
@@ -21,7 +23,7 @@
     <key>CFBundleShortVersionString</key>
     <string>2.4</string>
     <key>CFBundleVersion</key>
-    <string>7</string>
+    <string>8</string>
     <key>NSAccessibilityUsageDescription</key>
     <string>SpaceShift intercepts keyboard and trackpad Space switching to replay the native animation at your chosen speed.</string>
     <key>LSMinimumSystemVersion</key>

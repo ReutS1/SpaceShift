@@ -28,14 +28,11 @@ struct ContentView: View {
 
     private var header: some View {
         HStack(spacing: 13) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 11, style: .continuous)
-                    .fill(Color.accentColor.gradient)
-                    .frame(width: 44, height: 44)
-                Image(systemName: "rectangle.2.swap")
-                    .font(.system(size: 19, weight: .semibold))
-                    .foregroundStyle(.white)
-            }
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .interpolation(.high)
+                .frame(width: 44, height: 44)
+                .accessibilityHidden(true)
             Text("SpaceShift")
                 .font(.system(size: 22, weight: .bold, design: .rounded))
             Spacer()

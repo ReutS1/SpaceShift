@@ -12,6 +12,11 @@ All notable changes to SpaceShift are documented here.
 - Native Launch at Login integration through `SMAppService`.
 - Drag-to-Applications DMG installer and release build tooling.
 - Optional donation window with a locally generated QR code.
+- About SpaceShift command in the menu bar menu.
+
+### Changed
+
+- Replaced the application and installer artwork with the new SpaceShift icon.
 
 ### Security
 

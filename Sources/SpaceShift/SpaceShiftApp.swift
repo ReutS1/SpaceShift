@@ -67,6 +67,11 @@ private struct MenuBarView: View {
             NSApp.activate(ignoringOtherApps: true)
         }
 
+        Button("About SpaceShift") {
+            NSApp.orderFrontStandardAboutPanel(options: [:])
+            NSApp.activate(ignoringOtherApps: true)
+        }
+
         Button("Donate ☕️") {
             openWindow(id: "donate")
             NSApp.activate(ignoringOtherApps: true)

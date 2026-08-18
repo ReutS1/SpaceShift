@@ -19,6 +19,15 @@ open dist/SpaceShift.app
 ./scripts/build-dmg.sh
 ```
 
+## App icon
+
+Prepare a transparent 1024×1024 master, then regenerate the icon set and `.icns`:
+
+```sh
+swift scripts/PrepareIcon.swift path/to/source.png Resources/SpaceShift-master.png
+swift scripts/IconBuilder.swift Resources/SpaceShift-master.png .build/icon.iconset Resources/SpaceShift.icns
+```
+
 ## Signed and notarized release
 
 ```sh

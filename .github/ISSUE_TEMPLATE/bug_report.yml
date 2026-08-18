@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a reproducible problem in SpaceShift.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve SpaceShift. Please do not include private information or credentials.
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: macOS 15.6
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Mac model
+      placeholder: MacBook Pro 14-inch, Apple M3 Pro
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open SpaceShift
+        2. Set speed to ...
+        3. Press ...
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Add screenshots or other non-sensitive details if useful.

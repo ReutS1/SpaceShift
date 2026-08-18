@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: macOS release build
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build Swift package
+        run: swift build -c release
+
+      - name: Build application bundle
+        run: ./scripts/build-app.sh release
+
+      - name: Verify application signature
+        run: codesign --verify --deep --strict dist/SpaceShift.app

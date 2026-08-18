@@ -1,0 +1,6 @@
+.build/
+.cache/
+.swiftpm/
+dist/
+developer/
+.DS_Store

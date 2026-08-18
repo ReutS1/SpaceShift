@@ -12,6 +12,7 @@
   <a href="https://github.com/ReutS1/SpaceShift/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/ReutS1/SpaceShift?style=flat-square"></a>
   <img alt="macOS 14+" src="https://img.shields.io/badge/macOS-14%2B-000000?style=flat-square&logo=apple">
   <a href="https://github.com/ReutS1/SpaceShift/actions"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/ReutS1/SpaceShift/build.yml?branch=main&style=flat-square&label=build"></a>
+  <a href="LICENSE"><img alt="License: GPL v3" src="https://img.shields.io/badge/license-GPLv3-blue?style=flat-square"></a>
 </p>
 
 <p align="center">
@@ -92,6 +93,8 @@ Bug reports and focused improvements are welcome. Please read [CONTRIBUTING.md](
 
 The synthetic Dock-swipe technique and empirical velocity values are adapted from jurplel's MIT-licensed [InstantSpaceSwitcher](https://github.com/jurplel/InstantSpaceSwitcher). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and bundled third-party licenses.
 
-## Copyright
+## License
 
-Copyright © 2026 ReutS1. No license is granted for the SpaceShift source code unless one is added explicitly. Third-party components remain available under their respective licenses.
+SpaceShift source code and original project artwork are licensed under the [GNU General Public License v3.0](LICENSE). If you distribute a modified version, you must provide its corresponding source code under the same license.
+
+Copyright © 2026 ReutS1. Trademark rights in the SpaceShift name and logo are reserved; the license does not permit implying endorsement by the original project. Third-party components remain available under their respective licenses.

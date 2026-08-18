@@ -1,3 +1,5 @@
+-- SPDX-License-Identifier: GPL-3.0-only
+
 on run argv
 	set diskName to item 1 of argv
 	set mountDir to item 2 of argv

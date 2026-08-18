@@ -1,3 +1,5 @@
+-- SPDX-License-Identifier: GPL-3.0-only
+
 on run argv
     set volumeName to item 1 of argv
     tell application "Finder"

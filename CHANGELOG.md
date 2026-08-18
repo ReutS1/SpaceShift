@@ -17,6 +17,7 @@ All notable changes to SpaceShift are documented here.
 ### Changed
 
 - Replaced the application and installer artwork with the new SpaceShift icon.
+- Licensed the SpaceShift source code under GNU GPL v3.0.
 
 ### Security
 

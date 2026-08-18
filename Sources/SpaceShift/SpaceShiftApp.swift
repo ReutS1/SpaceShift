@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 import AppKit
 import SwiftUI
 
@@ -68,7 +70,16 @@ private struct MenuBarView: View {
         }
 
         Button("About SpaceShift") {
-            NSApp.orderFrontStandardAboutPanel(options: [:])
+            let sourceText = "github.com/ReutS1/SpaceShift"
+            let credits = NSMutableAttributedString(
+                string: "Licensed under GNU GPL v3.0.\nSource code: \(sourceText)"
+            )
+            credits.addAttribute(
+                .link,
+                value: URL(string: "https://github.com/ReutS1/SpaceShift")!,
+                range: (credits.string as NSString).range(of: sourceText)
+            )
+            NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])
             NSApp.activate(ignoringOtherApps: true)
         }
 

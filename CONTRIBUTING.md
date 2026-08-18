@@ -26,4 +26,4 @@ SpaceShift requires Accessibility permission to intercept supported keyboard and
 3. Run `swift build -c release` and `./scripts/build-app.sh release`.
 4. Update documentation when behavior or requirements change.
 
-By contributing, you confirm that you have the right to submit your work. No separate license is granted for the SpaceShift source code unless the project adds one explicitly.
+By contributing, you confirm that you have the right to submit your work and agree to license the contribution under GPL-3.0-only.

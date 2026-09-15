@@ -4,10 +4,10 @@ set -euo pipefail
 
 project_dir="${0:A:h:h}"
 app_path="$project_dir/dist/SpaceShift.app"
-dmg_path="$project_dir/dist/SpaceShift-2.4.dmg"
+dmg_path="$project_dir/dist/SpaceShift-2.5.dmg"
 template_path="$project_dir/Resources/SpaceShiftInstallerTemplate.dmg"
 background_path="$project_dir/Resources/dmg-background-v2.png"
-volume_name="SpaceShift Installer 2.4"
+volume_name="SpaceShift Installer 2.5"
 work_dir="$(mktemp -d /private/tmp/spaceshift-dmg.XXXXXX)"
 rw_path="$work_dir/SpaceShift-template-rw.dmg"
 mounted_device=""

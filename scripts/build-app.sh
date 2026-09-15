@@ -10,10 +10,19 @@ scratch_dir="$project_dir/.build"
 
 mkdir -p "$cache_dir" "$scratch_dir"
 
-# The 15.4 SDK is sufficient for our macOS 14 deployment target and also
-# works around mixed beta Command Line Tools installations.
-if [[ -z "${SDKROOT:-}" && -d /Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk ]]; then
-    export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk
+# A pre-27 SDK is sufficient for our macOS 14 deployment target and avoids a
+# SwiftUI macro-plugin mismatch in the standalone macOS 27 Command Line Tools.
+if [[ -z "${SDKROOT:-}" ]]; then
+    for compatible_sdk in \
+        /Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk \
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.7.sdk \
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.6.sdk \
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk; do
+        if [[ -d "$compatible_sdk" ]]; then
+            export SDKROOT="$compatible_sdk"
+            break
+        fi
+    done
 fi
 export CLANG_MODULE_CACHE_PATH="$cache_dir"
 export SWIFTPM_MODULECACHE_OVERRIDE="$cache_dir"

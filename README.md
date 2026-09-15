@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ReutS1/SpaceShift/releases/download/v2.4/SpaceShift-2.4.dmg"><strong>Download SpaceShift 2.4</strong></a>
+  <a href="https://github.com/ReutS1/SpaceShift/releases/download/v2.5/SpaceShift-2.5.dmg"><strong>Download SpaceShift 2.5</strong></a>
   ·
   <a href="https://github.com/ReutS1/SpaceShift/releases">All releases</a>
 </p>
@@ -28,6 +28,7 @@ SpaceShift is a lightweight native menu bar utility for macOS. It accelerates ho
 ## Highlights
 
 - Adjustable switching speed from **1× to 2.5×**
+- Compatible with macOS 27 Golden Gate
 - Works with `Control + Left/Right Arrow`
 - Supports physical three-finger horizontal trackpad swipes
 - Runs quietly in the menu bar without occupying the Dock
@@ -44,13 +45,13 @@ SpaceShift is a lightweight native menu bar utility for macOS. It accelerates ho
 
 ## Installation
 
-1. Download [`SpaceShift-2.4.dmg`](https://github.com/ReutS1/SpaceShift/releases/download/v2.4/SpaceShift-2.4.dmg).
+1. Download [`SpaceShift-2.5.dmg`](https://github.com/ReutS1/SpaceShift/releases/download/v2.5/SpaceShift-2.5.dmg).
 2. Open the disk image and drag **SpaceShift** to **Applications**.
 3. Launch SpaceShift.
 4. Click **Allow…**, then enable SpaceShift under **System Settings → Privacy & Security → Accessibility**.
 5. Return to SpaceShift and choose your preferred speed.
 
-> The current 2.4 community build is ad-hoc signed rather than Apple-notarized. If macOS blocks the first launch, open **System Settings → Privacy & Security** and choose **Open Anyway**. Future public releases should be Developer ID signed and notarized.
+> The current 2.5 community build is ad-hoc signed rather than Apple-notarized. If macOS blocks the first launch, open **System Settings → Privacy & Security** and choose **Open Anyway**. Future public releases should be Developer ID signed and notarized.
 
 SpaceShift continues running after its settings window is closed. Use the menu bar icon to pause acceleration, change presets, test a transition, reopen settings, or quit.
 
@@ -91,7 +92,7 @@ Bug reports and focused improvements are welcome. Please read [CONTRIBUTING.md](
 
 ## Credits
 
-The synthetic Dock-swipe technique and empirical velocity values are adapted from jurplel's MIT-licensed [InstantSpaceSwitcher](https://github.com/jurplel/InstantSpaceSwitcher). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and bundled third-party licenses.
+The synthetic Dock-swipe technique and empirical velocity values are adapted from jurplel's MIT-licensed [InstantSpaceSwitcher](https://github.com/jurplel/InstantSpaceSwitcher). macOS 27 IOHID payload handling is based on the 0BSD-licensed [iss](https://github.com/joshuarli/iss). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and bundled third-party licenses.
 
 ## License
 

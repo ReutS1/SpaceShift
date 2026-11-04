@@ -203,7 +203,8 @@ final class HotkeyEngine: @unchecked Sendable {
         event.setIntegerValueField(Self.eventTypeField, value: 30)
         event.setIntegerValueField(Self.gestureHIDType, value: 23)
         event.setIntegerValueField(Self.gesturePhase, value: phase)
-        event.setDoubleValueField(Self.swipeProgress, value: sign)
+        // Full travel makes Dock jump instantly; near-zero lets it animate from the release velocity.
+        event.setDoubleValueField(Self.swipeProgress, value: sign * 0.0001)
         event.setIntegerValueField(Self.swipeMotion, value: 1)
         event.setIntegerValueField(Self.gesturePhaseAlias, value: phase)
         event.setDoubleValueField(Self.gestureZoomDeltaY, value: 3)

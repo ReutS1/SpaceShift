@@ -33,6 +33,7 @@ SpaceShift is a lightweight native menu bar utility for macOS. It accelerates ho
 - Supports physical three-finger horizontal trackpad swipes
 - Runs quietly in the menu bar without occupying the Dock
 - Optional **Launch at Login** using Apple's `SMAppService`
+- Optional **Start Hidden in Menu Bar**, so the settings window stays closed at launch
 - No analytics, network requests, background updater, or preference hacks
 - Does not disable SIP, enable Reduce Motion, or restart Dock
 
@@ -54,6 +55,8 @@ SpaceShift is a lightweight native menu bar utility for macOS. It accelerates ho
 > The current 2.5 community build is ad-hoc signed rather than Apple-notarized. If macOS blocks the first launch, open **System Settings → Privacy & Security** and choose **Open Anyway**. Future public releases should be Developer ID signed and notarized.
 
 SpaceShift continues running after its settings window is closed. Use the menu bar icon to pause acceleration, change presets, test a transition, reopen settings, or quit.
+
+Turn on **Start Hidden in Menu Bar** to launch without the settings window, which is handy together with Launch at Login. Open SpaceShift again from Finder or Spotlight, or choose **Open SpaceShift…** in the menu bar, to bring the window back.
 
 ## How it works
 

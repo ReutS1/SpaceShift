@@ -7,13 +7,17 @@ struct ContentView: View {
     @ObservedObject var controller: MotionController
     @ObservedObject var launchAtLogin: LaunchAtLoginManager
     @Environment(\.openWindow) private var openWindow
+    @AppStorage(AppPreferences.startHiddenKey) private var startHidden = false
 
     var body: some View {
         VStack(spacing: 24) {
             header
             if !controller.hasAccessibilityPermission { permissionRow }
             speedControl
-            launchAtLoginRow
+            VStack(spacing: 14) {
+                launchAtLoginRow
+                startHiddenRow
+            }
             statusRow
         }
         .padding(28)
@@ -103,6 +107,7 @@ struct ContentView: View {
         HStack {
             Image(systemName: "power")
                 .foregroundStyle(.secondary)
+                .frame(width: 20)
             Text("Launch at Login")
                 .font(.system(size: 13, weight: .medium))
             Spacer()
@@ -113,5 +118,20 @@ struct ContentView: View {
             .labelsHidden()
             .toggleStyle(.switch)
         }
+    }
+
+    private var startHiddenRow: some View {
+        HStack {
+            Image(systemName: "menubar.arrow.up.rectangle")
+                .foregroundStyle(.secondary)
+                .frame(width: 20)
+            Text("Start Hidden in Menu Bar")
+                .font(.system(size: 13, weight: .medium))
+            Spacer()
+            Toggle("", isOn: $startHidden)
+                .labelsHidden()
+                .toggleStyle(.switch)
+        }
+        .help("Don't open this window when SpaceShift launches. Open it later from the menu bar icon.")
     }
 }

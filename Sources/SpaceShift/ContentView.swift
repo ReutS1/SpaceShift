@@ -72,16 +72,35 @@ struct ContentView: View {
                 Text("Speed")
                     .font(.system(size: 15, weight: .semibold))
                 Spacer()
-                Text(controller.approximateMultiplier)
+                Text(controller.speedLevel.title)
                     .font(.system(size: 17, weight: .bold, design: .rounded))
-                    .monospacedDigit()
                     .foregroundStyle(Color.accentColor)
             }
-            Slider(value: $controller.speed, in: 40...100, step: 5)
-                .disabled(!controller.isEnabled)
+            Slider(
+                value: speedIndex,
+                in: 0...Double(SpeedLevel.allCases.count - 1),
+                step: 1
+            ) {
+                Text("Speed")
+            } minimumValueLabel: {
+                Image(systemName: "tortoise.fill")
+                    .foregroundStyle(.secondary)
+            } maximumValueLabel: {
+                Image(systemName: "hare.fill")
+                    .foregroundStyle(.secondary)
+            }
+            .labelsHidden()
+            .disabled(!controller.isEnabled)
         }
         .padding(17)
         .background(Color(nsColor: .controlBackgroundColor).opacity(0.72), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+    }
+
+    private var speedIndex: Binding<Double> {
+        Binding(
+            get: { Double(controller.speedLevel.rawValue) },
+            set: { controller.speedLevel = SpeedLevel(rawValue: Int($0.rounded())) ?? .defaultLevel }
+        )
     }
 
     private var statusRow: some View {

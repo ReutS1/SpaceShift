@@ -27,7 +27,7 @@ SpaceShift is a lightweight native menu bar utility for macOS. It accelerates ho
 
 ## Highlights
 
-- Adjustable switching speed from **1× to 2.5×**
+- Four named switching speeds: **Smooth**, **Balanced**, **Fast** and **Instant**
 - Compatible with macOS 27 Golden Gate
 - Works with `Control + Left/Right Arrow`
 - Supports physical three-finger horizontal trackpad swipes
@@ -59,7 +59,16 @@ SpaceShift continues running after its settings window is closed. Use the menu b
 
 SpaceShift listens for supported keyboard and trackpad input, then supplies Dock with a synthetic native swipe at the selected velocity. Dock still renders its own horizontal Spaces animation—it simply completes faster.
 
-The speed slider ranges from the normal native gesture velocity (`40`) to a fast but still visible transition (`100`). The default value is `60`, approximately **1.5×**.
+The speed slider offers four named levels. Each one sets the swipe velocity Dock receives on release and, on macOS 27, a short accelerating ramp that precedes it: the swipe starts almost at rest, its progress follows `t^power` once per display frame, and then it is released.
+
+| Level | Velocity | Ramp (macOS 27) | Former preset |
+| --- | --- | --- | --- |
+| Smooth | `10` | 120 ms, power 1 | — |
+| Balanced | `20` | 80 ms, power 2 | — |
+| Fast (default) | `42` | 40 ms, power 4 | ≈ 1× |
+| Instant | `100` | none | 2.5× |
+
+A speed saved by an earlier version is mapped to the nearest level.
 
 ## Privacy and security
 

@@ -52,11 +52,10 @@ private struct MenuBarView: View {
             set: { launchAtLogin.setEnabled($0) }
         ))
 
-        Menu("Speed  \(controller.approximateMultiplier)") {
-            speedButton("1×", 40)
-            speedButton("1.5×", 60)
-            speedButton("2×", 80)
-            speedButton("2.5×", 100)
+        Menu("Speed: \(controller.speedLevel.title)") {
+            ForEach(SpeedLevel.allCases) { level in
+                speedButton(level)
+            }
         }
 
         Divider()
@@ -95,14 +94,14 @@ private struct MenuBarView: View {
     }
 
     @ViewBuilder
-    private func speedButton(_ title: String, _ value: Double) -> some View {
+    private func speedButton(_ level: SpeedLevel) -> some View {
         Button {
-            controller.setPreset(value)
+            controller.speedLevel = level
         } label: {
-            if abs(controller.speed - value) < 1 {
-                Label(title, systemImage: "checkmark")
+            if controller.speedLevel == level {
+                Label(level.title, systemImage: "checkmark")
             } else {
-                Text(title)
+                Text(level.title)
             }
         }
     }

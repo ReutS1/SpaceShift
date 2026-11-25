@@ -1,7 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
+import AppKit
 import ApplicationServices
 import Foundation
+import QuartzCore
+
+/// Calls back on every display refresh (CADisplayLink needs an @objc target).
+private final class DisplayLinkTarget: NSObject, @unchecked Sendable {
+    let onFrame: () -> Void
+    init(onFrame: @escaping () -> Void) { self.onFrame = onFrame }
+    @objc func frame(_ link: CADisplayLink) { onFrame() }
+}
 
 /// Replaces real keyboard/trackpad Space switches with a native Dock swipe
 /// whose velocity is controlled by the user.
@@ -15,7 +24,18 @@ final class HotkeyEngine: @unchecked Sendable {
     private var swipeTracking = false
     private var swipeFired = false
     private(set) var isRunning = false
-    var velocity: Double = 60
+    private(set) var velocity: Double = 60
+    private(set) var rampDuration: Double = 0
+    private(set) var rampPower: Double = 1
+
+    /// Synthetic macOS 27 swipes begin almost at rest. Starting at a full
+    /// Space made Dock jump before it animated.
+    private static let softStartProgress = 0.001
+    private var rampLink: CADisplayLink?
+    private var rampDirection: Direction?
+    private var deferredPhysicalEnd: CGEvent?
+    /// Marks events SpaceShift re-posts so its own tap lets them through.
+    private static let repostMarker: Int64 = 0x5353_4846
 
     private var requiresIOHIDPayload: Bool {
         ProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 27
@@ -54,7 +74,14 @@ final class HotkeyEngine: @unchecked Sendable {
         return true
     }
 
+    func apply(_ level: SpeedLevel) {
+        velocity = level.velocity
+        rampDuration = level.rampDuration
+        rampPower = level.rampPower
+    }
+
     func stop() {
+        finishRamp()
         swipeTracking = false
         swipeFired = false
         if let eventTap { CGEvent.tapEnable(tap: eventTap, enable: false) }
@@ -70,7 +97,11 @@ final class HotkeyEngine: @unchecked Sendable {
 
     func switchSpace(_ direction: Direction) {
         if requiresIOHIDPayload {
-            postAugmentedSwipe(direction)
+            if rampDuration > 0 {
+                startRamp(direction)
+            } else {
+                postAugmentedSwipe(direction)
+            }
             return
         }
 
@@ -78,6 +109,69 @@ final class HotkeyEngine: @unchecked Sendable {
         postSwipe(phase: 1, sign: sign)
         postSwipe(phase: 2, sign: sign)
         postSwipe(phase: 4, sign: sign)
+    }
+
+    // MARK: Accelerating ramp (macOS 27)
+
+    /// Begins a swipe, then advances its progress once per display frame
+    /// along t^power for `rampDuration`, and releases it at `velocity`.
+    /// Frame-synced updates keep Dock's tracking smooth.
+    private func startRamp(_ direction: Direction) {
+        finishRamp()
+        guard postAugmentedEvent(phase: 1, direction: direction, progress: Self.softStartProgress, velocity: 0) else { return }
+        rampDirection = direction
+
+        let start = CACurrentMediaTime()
+        let duration = rampDuration
+        let power = max(1, rampPower)
+        let target = DisplayLinkTarget { [weak self] in
+            guard let self, self.rampDirection == direction else { return }
+            let t = min(1, (CACurrentMediaTime() - start) / duration)
+            let progress = Self.softStartProgress + (1 - Self.softStartProgress) * pow(t, power)
+            self.postAugmentedEvent(phase: 2, direction: direction, progress: progress, velocity: 0)
+            if t >= 1 { self.finishRamp() }
+        }
+        // The tap callback and the display link both run on the main thread.
+        let started = MainActor.assumeIsolated {
+            guard let screen = NSScreen.main ?? NSScreen.screens.first else { return false }
+            let link = screen.displayLink(target: target, selector: #selector(DisplayLinkTarget.frame(_:)))
+            link.add(to: .main, forMode: .common)
+            self.rampLink = link
+            return true
+        }
+        if !started { finishRamp() }
+    }
+
+    /// Releases the in-flight ramp (if any) at full progress with the
+    /// selected velocity, then replays a deferred physical gesture end.
+    private func finishRamp() {
+        rampLink?.invalidate()
+        rampLink = nil
+        if let direction = rampDirection {
+            rampDirection = nil
+            postAugmentedEvent(phase: 4, direction: direction, progress: 1, velocity: velocity)
+        }
+        if let deferred = deferredPhysicalEnd {
+            deferredPhysicalEnd = nil
+            deferred.setIntegerValueField(.eventSourceUserData, value: Self.repostMarker)
+            deferred.post(tap: .cgSessionEventTap)
+        }
+    }
+
+    /// Posts one macOS 27 Dock swipe event. `progress` is 0...1; the
+    /// direction sign is applied here.
+    @discardableResult
+    private func postAugmentedEvent(phase: Int64, direction: Direction, progress: Double, velocity: Double) -> Bool {
+        guard let event = makeAugmentedSwipeEvent(
+            phase: phase, sign: Self.augmentedSign(direction), progress: progress, endVelocity: velocity
+        ), let augmented = augmentWithIOHIDPayload(event) else { return false }
+        postPair(dockEvent: augmented)
+        return true
+    }
+
+    /// Direction is reversed in the macOS 27 Dock gesture path.
+    private static func augmentedSign(_ direction: Direction) -> Double {
+        direction == .right ? -1.0 : 1.0
     }
 
     private func handle(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
@@ -97,6 +191,10 @@ final class HotkeyEngine: @unchecked Sendable {
             }
             if type == .keyDown { switchSpace(keyCode == 123 ? .left : .right) }
             return nil
+        }
+
+        if event.getIntegerValueField(.eventSourceUserData) == Self.repostMarker {
+            return Unmanaged.passUnretained(event)
         }
 
         let internalType = event.getIntegerValueField(Self.eventTypeField)
@@ -146,6 +244,12 @@ final class HotkeyEngine: @unchecked Sendable {
                     event.setDoubleValueField(Self.swipeVelocityX, value: 0)
                     event.setDoubleValueField(Self.swipeVelocityY, value: 0)
                     event.setDoubleValueField(Self.swipeProgress, value: 0)
+                    // Don't let the physical end cut a ramp short;
+                    // replay it once the ramp finishes.
+                    if rampLink != nil, let copy = event.copy() {
+                        deferredPhysicalEnd = copy
+                        return nil
+                    }
                     return Unmanaged.passUnretained(event)
                 }
                 return nil
@@ -184,8 +288,11 @@ final class HotkeyEngine: @unchecked Sendable {
         let phases: [Int64] = [1, 2, 4]
         var events: [CGEvent] = []
 
+        let sign = Self.augmentedSign(direction)
         for phase in phases {
-            guard let event = makeAugmentedSwipeEvent(phase: phase, direction: direction),
+            guard let event = makeAugmentedSwipeEvent(
+                      phase: phase, sign: sign, progress: phase == 4 ? 1 : Self.softStartProgress, endVelocity: velocity
+                  ),
                   let augmented = augmentWithIOHIDPayload(event) else { return }
             events.append(augmented)
         }
@@ -195,15 +302,13 @@ final class HotkeyEngine: @unchecked Sendable {
         }
     }
 
-    private func makeAugmentedSwipeEvent(phase: Int64, direction: Direction) -> CGEvent? {
+    private func makeAugmentedSwipeEvent(phase: Int64, sign: Double, progress: Double, endVelocity: Double) -> CGEvent? {
         guard let event = CGEvent(source: nil) else { return nil }
 
-        // Direction is reversed in the macOS 27 Dock gesture path.
-        let sign = direction == .right ? -1.0 : 1.0
         event.setIntegerValueField(Self.eventTypeField, value: 30)
         event.setIntegerValueField(Self.gestureHIDType, value: 23)
         event.setIntegerValueField(Self.gesturePhase, value: phase)
-        event.setDoubleValueField(Self.swipeProgress, value: sign)
+        event.setDoubleValueField(Self.swipeProgress, value: sign * progress)
         event.setIntegerValueField(Self.swipeMotion, value: 1)
         event.setIntegerValueField(Self.gesturePhaseAlias, value: phase)
         event.setDoubleValueField(Self.gestureZoomDeltaY, value: 3)
@@ -211,7 +316,7 @@ final class HotkeyEngine: @unchecked Sendable {
         event.setDoubleValueField(Self.swipePositionX, value: 0.1)
 
         if phase == 4 {
-            event.setDoubleValueField(Self.swipeVelocityX, value: sign * velocity)
+            event.setDoubleValueField(Self.swipeVelocityX, value: sign * endVelocity)
         }
         return event
     }

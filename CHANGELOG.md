@@ -2,6 +2,21 @@
 
 All notable changes to SpaceShift are documented here.
 
+## [Unreleased]
+
+### Changed
+
+- Replaced numeric speed multipliers (1×–2.5×) with four named levels:
+  Smooth (velocity 10), Balanced (20), Fast (42, the new default) and Instant
+  (100). Smooth and Balanced are slower than the former 1× preset; Instant keeps
+  the former maximum. Saved speeds map to the nearest level.
+- The settings slider shows the level name instead of a multiplier, and the
+  menu bar Speed menu lists the same levels.
+- On macOS 27, synthetic swipes start almost at rest instead of at a full
+  Space, and the slower levels add a short accelerating ramp, synced to the
+  display refresh, before Dock takes over. Earlier macOS versions keep the
+  previous behavior.
+
 ## [2.5] - 2026-09-15
 
 ### Fixed

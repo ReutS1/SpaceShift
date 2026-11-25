@@ -2,6 +2,14 @@
 
 All notable changes to SpaceShift are documented here.
 
+## [Unreleased]
+
+### Added
+
+- **Start Hidden in Menu Bar** option that keeps the settings window closed at
+  launch. Opening SpaceShift again from Finder or Spotlight while it runs in
+  the menu bar brings the window back.
+
 ## [2.5] - 2026-09-15
 
 ### Fixed

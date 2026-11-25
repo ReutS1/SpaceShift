@@ -3,9 +3,46 @@
 import AppKit
 import SwiftUI
 
+enum AppPreferences {
+    /// When true, the settings window is not shown at launch; SpaceShift
+    /// starts with only its menu bar icon.
+    static let startHiddenKey = "startHiddenInMenuBar"
+
+    static var startHidden: Bool {
+        UserDefaults.standard.bool(forKey: startHiddenKey)
+    }
+}
+
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    /// Opens the settings window. Provided by the menu bar label, which is
+    /// the only SwiftUI view guaranteed to exist when the window is hidden.
+    var openMainWindow: (() -> Void)?
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
+
+        if AppPreferences.startHidden {
+            closeMainWindows()
+        }
+    }
+
+    /// SwiftUI opens (or restores) the settings window during launch.
+    /// `defaultLaunchBehavior(.suppressed)` would avoid that, but it needs
+    /// macOS 15 and cannot be applied conditionally inside a `SceneBuilder`.
+    private func closeMainWindows() {
+        for window in NSApp.windows where window.identifier?.rawValue.hasPrefix("main") == true {
+            window.close()
+        }
+    }
+
+    /// Opening the app again (Finder, Spotlight, Dock) while it is already
+    /// running in the menu bar brings the settings window back.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        guard !flag, let openMainWindow else { return true }
+        openMainWindow()
+        NSApp.activate(ignoringOtherApps: true)
+        return false
     }
 }
 
@@ -32,10 +69,22 @@ struct SpaceShiftApp: App {
         MenuBarExtra {
             MenuBarView(controller: controller, launchAtLogin: launchAtLogin)
         } label: {
-            Image(systemName: "rectangle.2.swap")
-                .accessibilityLabel("SpaceShift")
+            MenuBarLabel(appDelegate: appDelegate)
         }
         .menuBarExtraStyle(.menu)
+    }
+}
+
+private struct MenuBarLabel: View {
+    let appDelegate: AppDelegate
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        Image(systemName: "rectangle.2.swap")
+            .accessibilityLabel("SpaceShift")
+            .onAppear {
+                appDelegate.openMainWindow = { openWindow(id: "main") }
+            }
     }
 }
 
